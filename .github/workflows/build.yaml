@@ -165,4 +165,3 @@ jobs:
           echo "Comparing build files"
           git diff firmware_from_windows/main.hex firmware_from_linux/main.hex --word-diff=color --ignore-space-at-eol --exit-code
           echo "Done comparing build files. Files are the same."
-
