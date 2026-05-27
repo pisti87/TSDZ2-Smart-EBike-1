@@ -8,7 +8,7 @@ import shutil
 import re
 import subprocess
 import cffi
-from pycparser import c_ast, parse_file, c_generator
+from pycparser import c_ast, parse_file, c_generator, plyparser
 from pycparser.plyparser import ParseError
 from distutils import ccompiler
 from typing import List
