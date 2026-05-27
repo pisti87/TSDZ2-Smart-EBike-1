@@ -9,6 +9,7 @@ import re
 import subprocess
 import cffi
 from pycparser import c_ast, parse_file, c_generator
+from pycparser.plyparser import ParseError
 from distutils import ccompiler
 from typing import List
 import importlib
