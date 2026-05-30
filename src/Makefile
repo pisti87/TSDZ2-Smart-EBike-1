@@ -24,11 +24,11 @@ ODIR = ../bin
 IDIR = STM8S_StdPeriph_Lib/inc
 SDIR = STM8S_StdPeriph_Lib/src
 
-In case you ever want a different name for the main source file
+#In case you ever want a different name for the main source file
 
 MAINSRC = $(PNAME).c
 
-These are the sources that must be compiled to .rel files:
+#These are the sources that must be compiled to .rel files:
 
 EXTRASRCS = 
 ebike_app.c 
@@ -60,7 +60,7 @@ $(SDIR)/stm8s_flash.c
 HEADERS = common.h torque_sensor.h interrupts.h main.h uart.h pwm.h motor.h wheel_speed_sensor.h brake.h pas.h adc.h timers.h 
 ebike_app.h pins.h eeprom.h lights.h config.h
 
-The list of .rel files can be derived from the list of their source files
+#The list of .rel files can be derived from the list of their source files
 
 RELS = $(addprefix $(ODIR)/,$(notdir $(EXTRASRCS:.c=.rel)))
 
@@ -76,12 +76,12 @@ all: build bin
 
 build: mkdir $(PNAME)
 
-How to build the overall program
+#How to build the overall program
 
 $(PNAME): $(MAINSRC) $(RELS)
 $(CC) $(INCLUDES) $(CFLAGS) $(DEBUG_FLAGS) $(LIBS) $(MAINSRC) $(RELS) -o$(ODIR)/$(PNAME).hex
 
-Rules for firmware sources
+#Rules for firmware sources
 
 %.rel: %.c $(HEADERS)
 $(CC) -c $(INCLUDES) $(CFLAGS) $(DEBUG_FLAGS) $(LIBS) -o$(ODIR)/ $<
@@ -89,14 +89,14 @@ $(CC) -c $(INCLUDES) $(CFLAGS) $(DEBUG_FLAGS) $(LIBS) -o$(ODIR)/ $<
 $(ODIR)/%.rel: %.c
 $(CC) -c $(INCLUDES) $(CFLAGS) $(DEBUG_FLAGS) $(LIBS) -o$(ODIR)/ $<
 
-Rules for device driver sources
+#Rules for device driver sources
 
 $(ODIR)/%.rel: $(SDIR)/%.c
 $(CC) -c $(INCLUDES) $(CFLAGS) $(DEBUG_FLAGS) $(LIBS) -o$(ODIR)/ $<
 
-Suffixes appearing in suffix rules we care about.
+#Suffixes appearing in suffix rules we care about.
 
-Necessary because .rel is not one of the standard suffixes.
+#Necessary because .rel is not one of the standard suffixes.
 
 .SUFFIXES: .c .rel
 
