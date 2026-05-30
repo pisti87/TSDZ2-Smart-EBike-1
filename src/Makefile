@@ -8,7 +8,8 @@
 
 #Compiler
 CC = sdcc
-OBJCOPY = objcopy
+#OBJCOPY = objcopy
+OBJCOPY = sdobjcopy
 SIZE = stm8-size
 
 #Platform
