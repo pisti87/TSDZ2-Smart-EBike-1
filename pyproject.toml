@@ -21,7 +21,7 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/emmebrusa/TSDZ2-Smart-EBike-1"
+Homepage = "https://github.com/pisti87/TSDZ2-Smart-EBike-1"
 
 [tool.pyright]
 extraPaths = ["tests"]
