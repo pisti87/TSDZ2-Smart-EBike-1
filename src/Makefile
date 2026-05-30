@@ -1,15 +1,14 @@
 #Makefile for STM8 Examples with SDCC compiler
-#Author:	Saeid Yazdani
-#Website:	WWW.EMBEDONIX.COM
+#Author: Saeid Yazdani
+#Website: WWW.EMBEDONIX.COM
 #Copyright 2016
-#LICENSE:	GNU-LGPL
+#LICENSE: GNU-LGPL
 
-.PHONY: all clean mkdir build
+.PHONY: all clean mkdir build bin
 
 #Compiler
 CC = sdcc
-#OBJCOPY = objcopy
-OBJCOPY = sdobjcopy
+MAKEBIN = makebin
 SIZE = stm8-size
 
 #Platform
@@ -25,98 +24,133 @@ ODIR = ../bin
 IDIR = STM8S_StdPeriph_Lib/inc
 SDIR = STM8S_StdPeriph_Lib/src
 
-# In case you ever want a different name for the main source file
+In case you ever want a different name for the main source file
+
 MAINSRC = $(PNAME).c
 
-# those sections are outside of the memory range (0x8000-0xFFF0) of the STM8S105
-ELF_SECTIONS_TO_REMOVE = -R DATA -R INITIALIZED -R SSEG
+These are the sources that must be compiled to .rel files:
 
-# These are the sources that must be compiled to .rel files:
-	EXTRASRCS = \
-	ebike_app.c \
-	common.c \
-	torque_sensor.c \
-	uart.c \
-	pwm.c \
-	motor.c \
-	wheel_speed_sensor.c \
-	brake.c \
-	pas.c \
-	adc.c \
-	timers.c \
-	eeprom.c \
-	lights.c \
-	$(SDIR)/stm8s_iwdg.c \
-	$(SDIR)/stm8s_itc.c \
-	$(SDIR)/stm8s_clk.c \
-	$(SDIR)/stm8s_gpio.c \
-	$(SDIR)/stm8s_uart2.c \
-	$(SDIR)/stm8s_tim1.c \
-	$(SDIR)/stm8s_tim2.c \
-	$(SDIR)/stm8s_tim3.c \
-    $(SDIR)/stm8s_tim4.c \
-	$(SDIR)/stm8s_exti.c \
-	$(SDIR)/stm8s_adc1.c \
-	$(SDIR)/stm8s_flash.c \
+EXTRASRCS = 
+ebike_app.c 
+common.c 
+torque_sensor.c 
+uart.c 
+pwm.c 
+motor.c 
+wheel_speed_sensor.c 
+brake.c 
+pas.c 
+adc.c 
+timers.c 
+eeprom.c 
+lights.c 
+$(SDIR)/stm8s_iwdg.c 
+$(SDIR)/stm8s_itc.c 
+$(SDIR)/stm8s_clk.c 
+$(SDIR)/stm8s_gpio.c 
+$(SDIR)/stm8s_uart2.c 
+$(SDIR)/stm8s_tim1.c 
+$(SDIR)/stm8s_tim2.c 
+$(SDIR)/stm8s_tim3.c 
+$(SDIR)/stm8s_tim4.c 
+$(SDIR)/stm8s_exti.c 
+$(SDIR)/stm8s_adc1.c 
+$(SDIR)/stm8s_flash.c
 
-HEADERS = common.h torque_sensor.h interrupts.h main.h uart.h pwm.h motor.h wheel_speed_sensor.h brake.h pas.h adc.h timers.h \
-ebike_app.h pins.h eeprom.h lights.h config.h
+HEADERS = 
+common.h 
+torque_sensor.h 
+interrupts.h 
+main.h 
+uart.h 
+pwm.h 
+motor.h 
+wheel_speed_sensor.h 
+brake.h 
+pas.h 
+adc.h 
+timers.h 
+ebike_app.h 
+pins.h 
+eeprom.h 
+lights.h 
+config.h
 
-# The list of .rel files can be derived from the list of their source files
+The list of .rel files can be derived from the list of their source files
+
 RELS = $(addprefix $(ODIR)/,$(notdir $(EXTRASRCS:.c=.rel)))
 
 override INCLUDES += -I$(IDIR) -I.
-override CFLAGS += -m$(PLATFORM) -D$(DEVICE) -Ddouble=float --std-c99 --nolospre --opt-code-speed --peep-asm --peep-file peep.txt
-override DEBUG_FLAGS += --out-fmt-elf --debug
-LIBS = 
+
+override CFLAGS += 
+-m$(PLATFORM) 
+-D$(DEVICE) 
+-Ddouble=float 
+--std-c99 
+--nolospre 
+--opt-code-speed 
+--peep-asm 
+--peep-file peep.txt
+
+override DEBUG_FLAGS += --debug
+
+LIBS =
 
 default: build
+
 all: build bin
 
 build: mkdir $(PNAME)
-# How to build the overall program
+
+Link firmware and generate Intel HEX (.ihx)
+
 $(PNAME): $(MAINSRC) $(RELS)
-	$(CC) $(INCLUDES) $(CFLAGS) $(DEBUG_FLAGS) $(LIBS) $(MAINSRC) $(RELS) -o$(ODIR)/$(PNAME).elf
+$(CC) $(INCLUDES) $(CFLAGS) $(DEBUG_FLAGS) $(LIBS) $(MAINSRC) $(RELS) -o$(ODIR)/$(PNAME).ihx
+cp $(ODIR)/$(PNAME).ihx $(ODIR)/$(PNAME).hex
 
-# 	$(SIZE) $(PNAME).elf	
-	$(OBJCOPY) -g $(ODIR)/$(PNAME).elf -O ihex $(ODIR)/$(PNAME).hex $(ELF_SECTIONS_TO_REMOVE)
+Rules for firmware sources
 
-#Rules for firmware sources
 %.rel: %.c $(HEADERS)
-	$(CC) -c $(INCLUDES) $(CFLAGS) $(DEBUG_FLAGS) $(LIBS) -o$(ODIR)/ $<
+$(CC) -c $(INCLUDES) $(CFLAGS) $(DEBUG_FLAGS) $(LIBS) -o$(ODIR)/ $<
 
-$(ODIR)/%.rel: %.c	
-	$(CC) -c $(INCLUDES) $(CFLAGS) $(DEBUG_FLAGS) $(LIBS) -o$(ODIR)/ $<
-#Rules for device driver sources
-$(ODIR)/%.rel: $(SDIR)/%.c	
-	$(CC) -c $(INCLUDES) $(CFLAGS) $(DEBUG_FLAGS) $(LIBS) -o$(ODIR)/ $<
+$(ODIR)/%.rel: %.c
+$(CC) -c $(INCLUDES) $(CFLAGS) $(DEBUG_FLAGS) $(LIBS) -o$(ODIR)/ $<
 
-# Suffixes appearing in suffix rules we care about.
-# Necessary because .rel is not one of the standard suffixes.
+Rules for device driver sources
+
+$(ODIR)/%.rel: $(SDIR)/%.c
+$(CC) -c $(INCLUDES) $(CFLAGS) $(DEBUG_FLAGS) $(LIBS) -o$(ODIR)/ $<
+
+Suffixes appearing in suffix rules we care about.
+
 .SUFFIXES: .c .rel
 
+Generate binary firmware
+
 bin: build
-	$(OBJCOPY) -I ihex $(ODIR)/$(PNAME).hex -O binary $(ODIR)/$(PNAME).bin
+$(MAKEBIN) -p $(ODIR)/$(PNAME).ihx $(ODIR)/$(PNAME).bin
 
 backup:
-	stm8flash -c stlinkv2 -p stm8s105?6 -s opt -r $(ODIR)/TSDZ_orig_opt.bin
-	stm8flash -c stlinkv2 -p stm8s105?6 -r $(ODIR)/TSDZ_orig.bin
-	stm8flash -c stlinkv2 -p stm8s105?6 -s eeprom -r $(ODIR)/TSDZ_orig_eeprom.bin
+stm8flash -c stlinkv2 -p stm8s105?6 -s opt -r $(ODIR)/TSDZ_orig_opt.bin
+stm8flash -c stlinkv2 -p stm8s105?6 -r $(ODIR)/TSDZ_orig.bin
+stm8flash -c stlinkv2 -p stm8s105?6 -s eeprom -r $(ODIR)/TSDZ_orig_eeprom.bin
 
 flash:
-	stm8flash -c stlinkv2 -p stm8s105\?6 -w $(ODIR)/$(PNAME).hex
+stm8flash -c stlinkv2 -p stm8s105?6 -w $(ODIR)/$(PNAME).hex
 
 clear_eeprom:
-	stm8flash -c stlinkv2 -p stm8s105\?6 -s eeprom -w data_empty.hex
+stm8flash -c stlinkv2 -p stm8s105?6 -s eeprom -w data_empty.hex
 
 clean:
-	@echo "Cleaning files..."
-	@rm -rf $(ODIR)
-	@echo "Done."
+@echo "Cleaning files..."
+@rm -rf $(ODIR)
+@echo "Done."
 
 mkdir:
-	mkdir -p $(ODIR)
+mkdir -p $(ODIR)
 
-## uncomment to print make variables
-# debug_make:
-#     $(foreach var,$(.VARIABLES),$(info $(var) = $($(var))))
+Uncomment to print make variables
+
+debug_make:
+
+$(foreach var,$(.VARIABLES),$(info $(var) = $($(var))))
